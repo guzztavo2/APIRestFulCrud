@@ -1,0 +1,9 @@
+h4.error{
+    background-color: #ff00008a;
+    width: 100%;
+    text-align: center;
+    padding:1%;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    border-radius: 2px;
+    color:white;
+}

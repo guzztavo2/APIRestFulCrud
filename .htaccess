@@ -1,0 +1,13 @@
+Options -Indexes
+    RewriteEngine On
+    RewriteCond %{SCRIPT_FILENAME} !-f
+    RewriteCond %{SCRIPT_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [NC,L]
+    SetEnvIf Referer http://192.168.100.83/CRUD_PHP/ localreferer
+    <FilesMatch \.(jpg|jpeg|png|gif|css|json|gz|xml)$>
+    Order deny,allow
+    Deny from all
+    Allow from env=localreferer
+    </FilesMatch>
+    ErrorDocument 403 /CRUD_PHP/index.php
+    

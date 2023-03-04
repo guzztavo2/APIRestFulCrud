@@ -1,0 +1,74 @@
+form{
+    padding:2%;
+    border:1px solid rgba(0, 0, 0, 0.311);
+  
+}
+label{
+    padding:2% 3%;
+   
+}
+
+input{
+    padding:1% 2%;
+    border:0;
+    outline: 0;
+    border:1px solid rgba(0, 0, 0, 0.252);
+    border-radius: 5px;
+    font-size: 20px;
+    box-shadow: rgba(0, 0, 0, 0.186) 0px 5px 5px;
+    transition: ease-in-out 0.2s;
+}
+input:focus{
+    box-shadow: rgba(0, 0, 0, 0.663) 0px 5px 5px;
+
+}
+h2{
+    font-size: 30px;
+    font-weight: 100;
+    text-transform: uppercase;
+    background-color: #457B9D;
+    color:white;
+    padding:1%;
+
+}
+input[type=submit]{
+    margin-top:2%;
+    font-size: 18px;
+    font-weight: 400;
+    text-transform: uppercase;
+    border-radius: 10px;
+    background-color: #A8DADC;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    cursor: pointer;
+}
+input[type=submit]:hover{
+    background-color: #30dce2;
+
+}
+.failMessage{
+    background-color:#ff0000b7; width:100; padding:1%; text-align:center; color:white; font-size:18px;
+    box-shadow: rgba(0, 0, 0, 0.744) 0px 5px 15px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid white;
+
+    font-weight: 100;
+    text-transform: uppercase;
+    transition: ease-in-out 0.2s;
+}
+.failMessage:hover{
+    background-color:#ff0000;}
+
+
+    .successMessage{
+        background-color:#1aff00b7; width:100; padding:1%; text-align:center; color:rgb(0, 0, 0); font-size:18px;
+        box-shadow: rgba(0, 0, 0, 0.744) 0px 5px 15px;
+        border-bottom: 1px solid #ffffff;
+        border-top: 1px solid #ffffff;
+    
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: ease-in-out 0.2s;
+    }
+    .successMessage:hover{
+        background-color:#00ff00;
+    }

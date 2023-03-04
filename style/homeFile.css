@@ -1,0 +1,12 @@
+
+div.container:nth-child(2){
+    min-height:70%;
+}
+
+
+@media (max-width:600px) {
+
+    div.container:nth-child(2){
+        min-height:unset;
+    }
+}

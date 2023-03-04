@@ -1,0 +1,39 @@
+    .trocarSenha{
+        text-decoration:none;
+        width: 100%;
+        padding:1%;
+        text-align: left;
+        border-radius:10px;
+        background-color: #A8DADC;
+        color:black;
+        font-size: 22px;
+        text-transform: uppercase;
+        border:1px solid black;
+    }
+   section > .container{
+        border:1px solid #cccc; 
+       
+        border-radius:10px; padding:1%; margin-top:2%;
+        align-items: center;
+    }
+
+    section h2{
+        padding:1%;
+        width: 100%;    
+    }
+    section h4{
+        margin-top:2%;
+        width: 100%;
+    }
+    section input{
+        outline:0;
+       width: 100%;
+        padding:1%;
+        font-size: 22px;
+        border:1px solid rgba(0, 0, 0, 0.598);
+        border-radius:10px;
+        text-transform: uppercase;
+        text-decoration: solid 1px black;
+        
+    }
+ 

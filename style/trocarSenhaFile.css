@@ -1,0 +1,39 @@
+
+    .container > h4{
+        border-bottom: 1px solid #000000;
+        text-align: center;
+    }
+    form{
+        padding:2%;
+    }
+    label > h4{
+        margin-top:20px;
+
+    }
+    input{
+        font-size: 18px;
+        padding:1%;
+        width: 100%;
+       
+    }
+    input[type=submit]{
+        margin-top:10px;
+        background-color: #ffffff;
+        outline:0;
+        border:1px solid #000000;
+        border-radius:5px;
+        cursor:pointer;
+        text-transform: uppercase;
+        transition: ease-in-out 0.2s;
+    }
+    input[type=submit]:hover{
+        background-color: #bfbfbfc4;
+    }
+section{
+    padding:2%;
+}
+section > div{
+    padding:2%;
+}
+
+

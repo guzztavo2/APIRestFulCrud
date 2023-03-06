@@ -38,15 +38,30 @@ class dataBase
         return false;
     
     }
-    public static function buscar($table_name, array $query, string $class = null):false|user{
+    public static function buscar($table_name, array $query = null, string $class = null):array{
         $pdo = self::conectar()->prepare("SELECT * FROM `$table_name` $query[0]");
+       
         $pdo->execute($query[1]);
-        if($class !== null){
-            $pdo->setFetchMode(PDO::FETCH_CLASS, $class);
-            return($pdo->fetch(PDO::FETCH_CLASS));
-        }
+        if($class !== null)
+            return($pdo->fetchAll(PDO::FETCH_CLASS, $class));
+        
+        return $pdo->fetchAll();
         
     
+    }
+    public static function retrieveDataPage(string $table_name, int $limit, int $offset, string $classname){
+        $pdo = dataBase::conectar()->prepare("SELECT * FROM `$table_name` LIMIT ? OFFSET ?");
+        $pdo->bindParam(1, $limit, \PDO::PARAM_INT);
+        $pdo->bindParam(2, $offset, \PDO::PARAM_INT);
+        $pdo->execute();
+        return $pdo->fetchAll(pdo::FETCH_CLASS, $classname);
+    }
+    public static function retrieveAllData($table_name, string $class = null){
+        $pdo = self::conectar()->prepare("SELECT * FROM `$table_name`");
+        $pdo->execute();
+        if($class !== null)
+            return $pdo->fetchAll(PDO::FETCH_CLASS,$class);
+        return $pdo->fetchAll();
     }
     public static function update($table_name, array $query){
         $pdo = self::conectar()->prepare("UPDATE `$table_name` SET $query[0]");

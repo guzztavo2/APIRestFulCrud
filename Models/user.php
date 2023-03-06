@@ -84,7 +84,7 @@ class user extends model
     }
     public function buscarPorNomeSenha()
     {
-        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? AND `senhaUsuario` = ? LIMIT 1', [$this->nomeUsuario, $this->senhaUsuario]),get_class($this));
+        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? AND `senhaUsuario` = ? LIMIT 1', [$this->nomeUsuario, $this->senhaUsuario]),get_class($this))[0];
 
         if ($user == false)
             return false;
@@ -95,25 +95,27 @@ class user extends model
     public function buscarPorNome()
     {
         $user = new user();
-        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? LIMIT 1', [$this->nomeUsuario]),get_class($this));
+        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? LIMIT 1', [$this->nomeUsuario]),get_class($this))[0];
 
         if ($user == false)
             return false;
 
-            $this->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
+        $user = $this;
+            //$this->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
         }
     public static function buscarPorToken(user $user): user|false
     {
-        $user = database::buscar($user->table_name, array('WHERE `id` = ? AND `estaLogado` = ? LIMIT 1', [$user->getID(), $user->getEstaLogado()]),'Models\user');
+        $user = database::buscar($user->table_name, array('WHERE `id` = ? AND `estaLogado` = ? LIMIT 1', [$user->getID(), $user->getEstaLogado()]),'Models\user')[0];
 
         if ($user == false)
             return false;
+
         return $user;
     }
     public static function buscarPorID(int | string $id): user | false
     {
         $user = new user();
-        $user = database::buscar($user->table_name, array('WHERE `id` = ? LIMIT 1', [$id]),'Models\user');
+        $user = database::buscar($user->table_name, array('WHERE `id` = ? LIMIT 1', [$id]),'Models\user')[0];
 
         if ($user == false)
             return false;
@@ -122,7 +124,7 @@ class user extends model
     }
     public static function buscarAPIToken(string $apiToken): user|false{
         $user = new user();
-        $user = database::buscar($user->table_name, array('WHERE `tokenAPI` = ? LIMIT 1', [$apiToken]),'Models\user');
+        $user = database::buscar($user->table_name, array('WHERE `tokenAPI` = ? LIMIT 1', [$apiToken]),'Models\user')[0];
 
         if ($user == false)
             return false;

@@ -5,6 +5,7 @@ namespace Models;
 use DateTime;
 use Exception;
 use Models\model;
+use PDO;
 
 class informacao extends model
 {
@@ -12,7 +13,7 @@ class informacao extends model
     protected string $id;
     protected string $informacao;
     protected string $dataCadastrada;
-    protected string $dataAtualizacao;
+    protected string|null $dataAtualizacao;
 
     protected int $quemCadastrou;
 
@@ -36,15 +37,15 @@ class informacao extends model
     public function setInformacao(string $informacao): void
     {
         $result = $this->filterVarString($informacao, 250, 5);
-        if($result == false)
-        throw new Exception('A informação a ser cadastrada passou do limite. Que é 250 caracteres.');
+        if ($result == false)
+            throw new Exception('A informação a ser cadastrada passou do limite. Que é 250 caracteres.');
         $this->informacao =  $result;
     }
 
     // Getter e Setter para $dataCadastrada
     public function getDataCadastrada(): string
     {
-        return date('d/m/Y H:i:s',strtotime($this->dataCadastrada));
+        return date('d/m/Y H:i:s', strtotime($this->dataCadastrada));
     }
 
     public function setDataCadastrada(): void
@@ -53,7 +54,7 @@ class informacao extends model
     }
 
     // Getter e Setter para $dataCadastrada
-    public function getDataAtualizacao(): string
+    public function getDataAtualizacao(): string|null
     {
         return $this->dataAtualizacao;
     }
@@ -73,12 +74,17 @@ class informacao extends model
         $this->quemCadastrou = $quemCadastrou->getID();
     }
 
-    public function salvar()
+    public function salvar(): bool
     {
-        if (database::insertData($this->table_name, ['informacao' => $this->getInformacao(), 'dataCadastrada' => $this->getDataCadastrada(), 'quemCadastrou' => $this->getQuemCadastrou()->getID()]))
-            return ['success' => 'Informação registrado com sucesso!'];
+        if (database::insertData($this->table_name, [
+            'informacao' => $this->informacao,
+            'dataCadastrada' => $this->dataCadastrada,
+            'quemCadastrou' => $this->quemCadastrou
+
+        ]))
+            return true;
         else
-            return ['fail' => 'Não foi possivel registrar a informação!'];
+            return false;
     }
     public function getJsonObject()
     {
@@ -90,8 +96,20 @@ class informacao extends model
         $info->setInformacao($informacao);
         $info->setQuemCadastrou($quemCadastrou);
         $info->setDataCadastrada(date('d/m/Y H:i:s'));
-        echo $info->getDataCadastrada();
-        
+
         return $info;
     }
+   public static function getInformacaoList():array{
+    $informacao = new informacao();
+    return database::retrieveAllData($informacao->table_name, get_class($informacao));
+  
+   }
+   public static function buscarPagina(int $limit, int $offset){
+    $informacao = new informacao();
+    $informacao = database::retrieveDataPage($informacao->table_name,$limit, $offset,get_class($informacao));
+    return $informacao;
+
+    
+    
+   }
 }

@@ -51,7 +51,7 @@ class model
         $columns[0] = $this->createAutoIncrementColumn($columns[0]);
         $columns[1] = $this->createColumn($columns[1], 250);
         $columns[2] = '`' . $columns[2] . '` DATETIME NOT NULL';
-        $columns[3] = '`' . $columns[3] . '` DATETIME NOT NULL';
+        $columns[3] = '`' . $columns[3] . '` DATETIME';
         $columns[4] = '`' . $columns[4] . '` int NOT NULL';
     
         $columns[] = 'PRIMARY KEY (`id`), FOREIGN KEY (`quemCadastrou`) REFERENCES `tb_user`(`id`)';

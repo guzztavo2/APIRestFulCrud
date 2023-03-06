@@ -1,15 +1,15 @@
 <?php
 
-use Controllers\crudController;
 use Controllers\homeController;
 use Controllers\userController;
 use Controllers\informacaoController;
+
 class Routes
 {
     private array $URL;
     public const HOME_PATH = HOME_URL;
     private const LIST_PAGE_REDIRECIONAMENTO = ['home', 'user', 'sobre', 'code', 'style'];
-    private const GET_REQUISICOES = ['item'];
+    private const GET_REQUISICOES = [ 'app' => ['page']];
     public string $requestMethod;
 
     private function verificarTipoRequest()
@@ -42,33 +42,34 @@ class Routes
     public function redirecionamentoPOSTmethod()
     {
         $postData = $this->filtrarDadosDeEntrada();
-    
+
         $routes = [
-            'user/criarConta' => ['controller'=> 'userController','method' => 'criarConta'],
-            'user/acessarConta' => ['controller'=> 'userController','method' => 'acessarConta'],
-            'user/verificarsenha' => ['controller'=> 'userController','method' => 'verificarSenha'],
-            'user/trocarSenha' => ['controller'=> 'userController','method' => 'trocarSenha'],
-            'informacao/inserirInformacao' => ['controller'=> 'informacaoController','method' => 'inserirInformacao'] 
+            'user/criarConta' => ['controller' => 'userController', 'method' => 'criarConta'],
+            'user/acessarConta' => ['controller' => 'userController', 'method' => 'acessarConta'],
+            'user/verificarsenha' => ['controller' => 'userController', 'method' => 'verificarSenha'],
+            'user/trocarSenha' => ['controller' => 'userController', 'method' => 'trocarSenha'],
+            'informacao/inserirInformacao' => ['controller' => 'informacaoController', 'method' => 'inserirInformacao']
         ];
-    
+
         $url = implode('/', $this->getURL());
         if (array_key_exists($url, $routes)) {
             $route = $routes[$url];
             $methodName = $route['method'];
-            if($route['controller'] == 'userController')            
+            if ($route['controller'] == 'userController')
                 userController::$methodName($postData);
             else
                 informacaoController::inserirInformacao($postData);
         }
-    
+
         exit;
     }
-    
+
     private function filtrarDadosDeEntrada()
     {
-        return filter_input_array(INPUT_POST, FILTER_DEFAULT);
+
+        return filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
     }
-    
+
     public function __construct()
     {
 
@@ -106,18 +107,12 @@ class Routes
     }
     private function redirecionarGETmethod()
     {
-        $url = $this->getURL();
-    
-        // Se não houver elementos na URL, redireciona para a página inicial
-        if (count($url) === 0) {
-            self::redirecionarURL('home');
-        }
-    
         // Filtra os parâmetros GET da URL
         $_GET = filter_input_array(INPUT_GET, FILTER_DEFAULT);
-    
-        // Verifica se o primeiro elemento da URL é uma página válida
-        $pagina = $url[0];
+
+        $url = $this->getURL();
+        $pagina = $url[0] ?? self::redirecionarURL('home');
+
         if (in_array($pagina, self::LIST_PAGE_REDIRECIONAMENTO)) {
             switch ($pagina) {
                 case 'home':
@@ -127,7 +122,7 @@ class Routes
                     homeController::sobre();
                     break;
                 case 'errorequisicao':
-                    throw new Exception('Não é possivel utilizar esse tipo de requisição.', 404);
+                    throw new Exception('Não é possível utilizar esse tipo de requisição.', 404);
                 case 'user':
                     $this->redirecionarUsuario($url);
                     break;
@@ -139,7 +134,7 @@ class Routes
             throw new Exception('Página não localizada', 404);
         }
     }
-    
+
     // Função auxiliar para redirecionamento de páginas de usuário
     private function redirecionarUsuario($url)
     {
@@ -147,19 +142,19 @@ class Routes
         if (count($url) > 2) {
             throw new Exception('Não é possivel localizar essa página', 404);
         }
-    
+
         $acao = $url[1];
-    
+
         // Verifica se há parâmetros GET na URL e se são válidos
         if (strpos($acao, '?') !== false) {
             $acao = substr($acao, 0, strpos($acao, '?'));
             foreach (array_keys($_GET) as $parametro) {
-                if (!in_array($parametro, self::GET_REQUISICOES)) {
+                if (!in_array($parametro, self::GET_REQUISICOES[$acao])) {
                     self::redirecionarURL('errorequisicao');
                 }
             }
         }
-    
+
         // Redireciona para a ação de usuário correspondente
         switch ($acao) {
             case 'criar':
@@ -177,7 +172,7 @@ class Routes
             case 'trocarsenha':
                 userController::trocarSenha();
             case 'app':
-                crudController::app();
+                informacaoController::app();
                 break;
             case 'sair':
                 userController::logout();
@@ -187,7 +182,7 @@ class Routes
                 break;
         }
     }
-    
+
     public static function redirecionarURL($url)
     {
         header('location: ' . self::HOME_PATH . $url);

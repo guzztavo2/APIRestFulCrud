@@ -6,9 +6,11 @@ spl_autoload_register(function ($class_name) {
         include_once('.\\'.$class_name.'.php');
     }
 });
+date_default_timezone_set('America/Sao_Paulo');
+
 session_start();
-define('HOME', 'CRUD_PHP');
-define('URL', 'http://192.168.100.83/');
+define('HOME', 'APIRestFulCrud');
+define('URL', 'http://localhost/');
 define('HOME_URL', URL.HOME.'/');
 
 define('DATABASE_CONFIGS', [

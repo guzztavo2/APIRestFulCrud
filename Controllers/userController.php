@@ -30,7 +30,7 @@ class userController extends Controller
                 unset($_SESSION['fail']);
                 self::includeFile('trocarSenha.php', array('token' => $token_csrf, 'fail' => $fail));
             }
-            if(isset($_SESSION['success'])){
+            if (isset($_SESSION['success'])) {
                 $success = $_SESSION['success'];
                 unset($_SESSION['success']);
                 self::includeFile('trocarSenha.php', array('token' => $token_csrf, 'success' => $success));
@@ -56,17 +56,17 @@ class userController extends Controller
                     $warningRedirect('As senhas não são iguais, tanto a nova senha e a de confirmação são necessárias serem iguais.');
 
                 $user = new user();
-                $user->setNomeUsuario(self::getSessionUserLogado()->getNomeUsuario());                      
-                $user->setSenhaUsuario($postRequest['senhaNova']);
-         
-                if (strcmp(self::getSessionUserLogado()->getSenhaUsuario(), $user->getSenhaUsuario()) == 0)
-                    $warningRedirect('A senha antiga e a senha atual, não podem ser iguais.');
-                $user->buscarPorNome();  
-                
+                $user->setNomeUsuario(self::getSessionUserLogado()->getNomeUsuario());
                 $user->setSenhaUsuario($postRequest['senhaNova']);
 
-                $user->atualizar($user->getSenhaUsuario());   
-                self::setSessionUserLogado($user);             
+                if (strcmp(self::getSessionUserLogado()->getSenhaUsuario(), $user->getSenhaUsuario()) == 0)
+                    $warningRedirect('A senha antiga e a senha atual, não podem ser iguais.');
+                $user->buscarPorNome();
+
+                $user->setSenhaUsuario($postRequest['senhaNova']);
+
+                $user->atualizar($user->getSenhaUsuario());
+                self::setSessionUserLogado($user);
                 $warningRedirect('As senhas foram trocadas e concluidas com sucesso! Quando for acessar sua conta novamente, terá de usar sua nova senha', true);
             } else
                 $warningRedirect('Requisição inválida, por favor, insira sua senha atual novamente, para poder troca-la.');
@@ -74,7 +74,7 @@ class userController extends Controller
     }
     public static function setSessionUserLogado(user $user)
     {
-      
+
         $_SESSION['userLogado'] = $user->getJsonObject();
     }
     public static function getSessionUserLogado()

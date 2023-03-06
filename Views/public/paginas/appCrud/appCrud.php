@@ -84,6 +84,9 @@
     <?php endif; ?>
 
     <div class="paginacao flexRow">
+    <?php if (count($listaInfo) === 0) : ?>
+        <h2 class="pagina marcado">1</h2>
+    <?php else:?>
         <h2 class="pagina"><i class="fa-solid fa-angles-left"></i></h2>
         <h2 class="pagina">2</h2>
         <h2 class="pagina">3</h2>
@@ -96,6 +99,7 @@
         <h2 class="pagina">1</h2>
         <h2 class="pagina marcado">1</h2>
         <h2 class="pagina"><i class="fa-solid fa-angles-right"></i></h2>
+        <?php endif;?>
     </div>
 </div>
 

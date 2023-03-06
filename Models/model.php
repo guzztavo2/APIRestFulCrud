@@ -16,40 +16,70 @@ class model
     }
     private function criarTabela()
     {
-        $info = $this->getThisVars();
-        $info = array_keys($info);
-        $info = array_splice($info, 1);
+        $info = array_keys($this->getThisVars());
+        $info = array_splice($info,1);
 
-        if (get_class($this) == 'Models\\user')
-            $info = $this->modelUserQuerry($info);
-        else if (get_class($this) == 'Models\\informacao')
-            $info = $this->modelInformacaoQuerry($info);
-
+        $class_name = get_class($this);
+        switch ($class_name) {
+            case 'Models\\user':
+                $info = $this->getModelUserQuery($info);
+                break;
+            case 'Models\\informacao':
+                $info = $this->getModelInformacaoQuery($info);
+                break;
+            default:
+                throw new \Exception("Tabela não encontrada para a classe '$class_name'");
+        }
+    
         database::criarTabela($this->table_name, $info);
     }
-    private function modelUserQuerry(array $queryInicial): string
-    {
-        $queryInicial[0] = '`' . $queryInicial[0] . '` int NOT NULL AUTO_INCREMENT';
-        $queryInicial[1] = '`' . $queryInicial[1] . '` varchar(100) NOT NULL UNIQUE';
-        $queryInicial[2] = '`' . $queryInicial[2] . '` varchar(100) NOT NULL';
-        $queryInicial[3] = '`' . $queryInicial[3] . '` varchar(100)';
-        $queryInicial[4] = '`' . $queryInicial[4] . '` varchar(100)';
-
-        $queryInicial = implode(',', $queryInicial);
-        $queryInicial .= ', PRIMARY KEY (`id`)';
-        return $queryInicial;
-    }
-
-    private function modelInformacaoQuerry(array $queryInicial): string
-    {
-        $queryInicial[0] = '`' . $queryInicial[0] . '` int NOT NULL AUTO_INCREMENT';
-        $queryInicial[1] = '`' . $queryInicial[1] . '` varchar(250) NOT NULL';
-        $queryInicial[2] = '`' . $queryInicial[2] . '` DATETIME NOT NULL';
-        $queryInicial[3] = '`' . $queryInicial[3] . '` int NOT NULL';
-
-        $queryInicial = implode(',', $queryInicial);
-        $queryInicial .= ', PRIMARY KEY (`id`), FOREIGN KEY (`quemCadastrou`) REFERENCES `tb_user`(`id`)';
     
-        return $queryInicial;
+    private function getModelUserQuery(array $columns): string
+    {
+        $columns[0] = $this->createAutoIncrementColumn($columns[0]);
+        $columns[1] = $this->createUniqueColumn($columns[1], 100);
+        $columns[2] = $this->createColumn($columns[2], 100);
+        $columns[3] = $this->createColumn($columns[3], 100);
+        $columns[4] = $this->createColumn($columns[4], 100);
+    
+        $columns[] = 'PRIMARY KEY (`id`)';
+        return implode(',', $columns);
+    }
+    
+    private function getModelInformacaoQuery(array $columns): string
+    {
+        $columns[0] = $this->createAutoIncrementColumn($columns[0]);
+        $columns[1] = $this->createColumn($columns[1], 250);
+        $columns[2] = '`' . $columns[2] . '` DATETIME NOT NULL';
+        $columns[3] = '`' . $columns[3] . '` DATETIME NOT NULL';
+        $columns[4] = '`' . $columns[4] . '` int NOT NULL';
+    
+        $columns[] = 'PRIMARY KEY (`id`), FOREIGN KEY (`quemCadastrou`) REFERENCES `tb_user`(`id`)';
+        return implode(',', $columns);
+    }
+    
+    private function createAutoIncrementColumn(string $name): string
+    {
+        return '`' . $name . '` int NOT NULL AUTO_INCREMENT';
+    }
+    
+    private function createUniqueColumn(string $name, int $length): string
+    {
+        return '`' . $name . '` varchar(' . $length . ') NOT NULL UNIQUE';
+    }
+    
+    private function createColumn(string $name, int $length): string
+    {
+        return '`' . $name . '` varchar(' . $length . ')';
+    }
+    
+
+    protected function filterVarString($var, int $maxLenght, int $minLenght)
+    {
+        $var = filter_var($var, FILTER_DEFAULT);
+        if (strlen($var) > $maxLenght || strlen($var) < $minLenght) {
+            return false;
+        }
+        return $var;
     }
 }

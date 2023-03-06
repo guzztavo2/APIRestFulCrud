@@ -45,14 +45,7 @@ class user extends model
     {
         return $this->estaLogado;
     }
-    private function filterVarString($var, int $maxLenght, int $minLenght)
-    {
-        $var = filter_var($var, FILTER_DEFAULT);
-        if (strlen($var) > $maxLenght || strlen($var) < $minLenght) {
-            return false;
-        }
-        return $var;
-    }
+
     public function salvar()
     {
         if (database::insertData($this->table_name, ['nomeUsuario' => $this->getNomeUsuario(), 'senhaUsuario' => $this->getSenhaUsuario()]))
@@ -121,6 +114,15 @@ class user extends model
     {
         $user = new user();
         $user = database::buscar($user->table_name, array('WHERE `id` = ? LIMIT 1', [$id]),'Models\user');
+
+        if ($user == false)
+            return false;
+
+        return $user;
+    }
+    public static function buscarAPIToken(string $apiToken): user|false{
+        $user = new user();
+        $user = database::buscar($user->table_name, array('WHERE `tokenAPI` = ? LIMIT 1', [$apiToken]),'Models\user');
 
         if ($user == false)
             return false;

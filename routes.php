@@ -3,7 +3,7 @@
 use Controllers\crudController;
 use Controllers\homeController;
 use Controllers\userController;
-
+use Controllers\informacaoController;
 class Routes
 {
     private array $URL;
@@ -14,7 +14,6 @@ class Routes
 
     private function verificarTipoRequest()
     {
-        new Models\informacao();
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $this->requestMethod = $requestMethod;
         userController::verificarTokenUser();
@@ -24,7 +23,7 @@ class Routes
                 return;
                 break;
             case 'GET':
-                $this->redirecionamentoGETmethod();
+                $this->redirecionarGETmethod();
                 return;
                 break;
             case 'UPDATE':
@@ -42,23 +41,34 @@ class Routes
 
     public function redirecionamentoPOSTmethod()
     {
-        $_POST = filter_input_array(INPUT_POST, FILTER_DEFAULT);
-        switch ($this->getURL()[0]) {
-            case 'user':
-                if ($this->getURL()[1] == 'criarConta')
-                    userController::criarConta($_POST);
-                if ($this->getURL()[1] == 'acessarConta')
-                    userController::acessarConta($_POST);
-                if ($this->getURL()[1] == 'verificarsenha')
-                    userController::verificarSenha($_POST);
-                if ($this->getURL()[1] == 'trocarSenha')
-                    userController::trocarSenha($_POST);
-
-
-                break;
+        $postData = $this->filtrarDadosDeEntrada();
+    
+        $routes = [
+            'user/criarConta' => ['controller'=> 'userController','method' => 'criarConta'],
+            'user/acessarConta' => ['controller'=> 'userController','method' => 'acessarConta'],
+            'user/verificarsenha' => ['controller'=> 'userController','method' => 'verificarSenha'],
+            'user/trocarSenha' => ['controller'=> 'userController','method' => 'trocarSenha'],
+            'informacao/inserirInformacao' => ['controller'=> 'informacaoController','method' => 'inserirInformacao'] 
+        ];
+    
+        $url = implode('/', $this->getURL());
+        if (array_key_exists($url, $routes)) {
+            $route = $routes[$url];
+            $methodName = $route['method'];
+            if($route['controller'] == 'userController')            
+                userController::$methodName($postData);
+            else
+                informacaoController::inserirInformacao($postData);
         }
+    
         exit;
     }
+    
+    private function filtrarDadosDeEntrada()
+    {
+        return filter_input_array(INPUT_POST, FILTER_DEFAULT);
+    }
+    
     public function __construct()
     {
 
@@ -94,111 +104,90 @@ class Routes
 
         return $url;
     }
-    private function redirecionamentoGETmethod()
+    private function redirecionarGETmethod()
     {
-        if (count($this->getURL()) == 0)
+        $url = $this->getURL();
+    
+        // Se não houver elementos na URL, redireciona para a página inicial
+        if (count($url) === 0) {
             self::redirecionarURL('home');
-
+        }
+    
+        // Filtra os parâmetros GET da URL
         $_GET = filter_input_array(INPUT_GET, FILTER_DEFAULT);
-
-
-        foreach (self::LIST_PAGE_REDIRECIONAMENTO as $page) {
-            if ($this->getURL()[0] === $page) {
-                switch ($page) {
-                    case 'home':
-                        homeController::home();
-                        break;
-                    case 'sobre':
-                        homeController::sobre();
-                        break;
-                    case 'errorequisicao':
-                        throw new Exception('Não é possivel utilizar esse tipo de requisição.', 404);
-                    case 'user':
-                        if (count($this->getURL()) > 2)
-                            throw new Exception('Não é possivel localizar essa página', 404);
-                        //$user_url = ['criar', 'logar', 'conta', 'configuracao', 'sair'];
-                        $urlNow = $this->getURL()[1];
-                        if (strpos($this->getURL()[1], '?') !== false) {
-                            $urlNow = substr($this->getURL()[1], 0, strpos($this->getURL()[1], '?'));
-                            foreach (array_keys($_GET) as $item) {
-                                if (array_search($item, self::GET_REQUISICOES) == false)
-                                    self::redirecionarURL('errorequisicao');
-                            }
-                        }
-                        switch ($urlNow) {
-                            case 'criar':
-                                userController::Create();
-                                break;
-                            case 'logar':
-                                userController::Login();
-                                break;
-                            case 'conta':
-                                userController::mainConta();
-                                break;
-                            case 'configuracao':
-                                userController::configuracao();
-                                break;
-                            case 'trocarsenha':
-                                userController::trocarSenha();
-                            case 'app':
-                                crudController::app();
-                                break;
-                            case 'sair':
-                                userController::logout();
-                                break;
-
-
-                            default:
-                                throw new Exception('Não é possivel localizar essa página', 404);
-                        }
-                        break;
-
-                        // case 'code':
-                        //     self::includeFile($this->getURL()[0], $this->getURL()[1]);
-                        //     break;
-
-                        // case 'style':
-                        //     self::includeFile($this->getURL()[0], $this->getURL()[1]);
-
-                        //     break;
-                    default:
-                        throw new Exception('Erro, essa URL não existe', 404);
-                        break;
+    
+        // Verifica se o primeiro elemento da URL é uma página válida
+        $pagina = $url[0];
+        if (in_array($pagina, self::LIST_PAGE_REDIRECIONAMENTO)) {
+            switch ($pagina) {
+                case 'home':
+                    homeController::home();
+                    break;
+                case 'sobre':
+                    homeController::sobre();
+                    break;
+                case 'errorequisicao':
+                    throw new Exception('Não é possivel utilizar esse tipo de requisição.', 404);
+                case 'user':
+                    $this->redirecionarUsuario($url);
+                    break;
+                default:
+                    throw new Exception('Erro, essa URL não existe', 404);
+                    break;
+            }
+        } else {
+            throw new Exception('Página não localizada', 404);
+        }
+    }
+    
+    // Função auxiliar para redirecionamento de páginas de usuário
+    private function redirecionarUsuario($url)
+    {
+        // Verifica se a URL de usuário tem mais de um elemento
+        if (count($url) > 2) {
+            throw new Exception('Não é possivel localizar essa página', 404);
+        }
+    
+        $acao = $url[1];
+    
+        // Verifica se há parâmetros GET na URL e se são válidos
+        if (strpos($acao, '?') !== false) {
+            $acao = substr($acao, 0, strpos($acao, '?'));
+            foreach (array_keys($_GET) as $parametro) {
+                if (!in_array($parametro, self::GET_REQUISICOES)) {
+                    self::redirecionarURL('errorequisicao');
                 }
             }
         }
-        throw new Exception('Página não localizada', 404);
+    
+        // Redireciona para a ação de usuário correspondente
+        switch ($acao) {
+            case 'criar':
+                userController::Create();
+                break;
+            case 'logar':
+                userController::Login();
+                break;
+            case 'conta':
+                userController::mainConta();
+                break;
+            case 'configuracao':
+                userController::configuracao();
+                break;
+            case 'trocarsenha':
+                userController::trocarSenha();
+            case 'app':
+                crudController::app();
+                break;
+            case 'sair':
+                userController::logout();
+                break;
+            default:
+                throw new Exception('Não é possivel localizar essa página', 404);
+                break;
+        }
     }
-    // private static function includeFile($typeFile, $nameFile)
-    // {
-    //     if ($typeFile == 'code')
-    //         self::includeScriptFile($typeFile, $nameFile);
-    //     else if ($typeFile == 'style')
-    //         self::includeScriptFile($typeFile, $nameFile);
-    // }
-    // private static function includeScriptFile($typeFile, $nameFile)
-    // {
-    //     $FILES_DIR = 'VIEWS\public\\';
-
-    //     $filesDir = scandir($FILES_DIR . $typeFile);
-    //     array_splice($filesDir, 0, 2);
-
-    //     if ($typeFile == 'code')
-    //         header('content-type: text/javascript');
-    //     else if ($typeFile == 'style')
-    //         header('content-type: text/css');
-
-    //     foreach ($filesDir as $file) {
-    //         if ($file === $nameFile) {
-    //             if (file_exists($FILES_DIR . '\\' . $typeFile . '\\' . $nameFile)) {
-    //                 include($FILES_DIR .  '\\' . $typeFile . '\\' . $nameFile);
-    //                 exit;
-    //             } else
-    //                 throw new Exception('Esse diretório não existe, verifique seu diretório e tente novamente.', 404);
-    //         }
-    //     }
-    //     throw new Exception('Esse arquivo não existe, verifique seu diretório e tente novamente.', 404);
-    // }
+    
     public static function redirecionarURL($url)
     {
         header('location: ' . self::HOME_PATH . $url);

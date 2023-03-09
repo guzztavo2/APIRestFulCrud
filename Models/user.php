@@ -84,24 +84,25 @@ class user extends model
     }
     public function buscarPorNomeSenha()
     {
-        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? AND `senhaUsuario` = ? LIMIT 1', [$this->nomeUsuario, $this->senhaUsuario]),get_class($this))[0];
 
-        if ($user == false)
+        $user = database::buscar($this->table_name, array("WHERE `nomeUsuario` = ? AND `senhaUsuario` = ? LIMIT 1", [$this->getNomeUsuario(), $this->getSenhaUsuario()]),'Models\user');
+
+        if (count($user) == 0)
             return false;
-
+        $user = $user[0];
         $this->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
     }
 
     public function buscarPorNome()
     {
         $user = new user();
-        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? LIMIT 1', [$this->nomeUsuario]),get_class($this))[0];
+        $user = database::buscar($this->table_name, array('WHERE `nomeUsuario` = ? LIMIT 1', [$this->nomeUsuario]),get_class($this));
 
-        if ($user == false)
+        if (count($user) == 0)
             return false;
-
-        $user = $this;
-            //$this->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
+        $user = $user[0];
+       
+        $this->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
         }
     public static function buscarPorToken(user $user): user|false
     {
@@ -112,24 +113,24 @@ class user extends model
 
         return $user;
     }
-    public static function buscarPorID(int | string $id): user | false
+    public static function buscarPorID(int | string $id): user | null
     {
         $user = new user();
-        $user = database::buscar($user->table_name, array('WHERE `id` = ? LIMIT 1', [$id]),'Models\user')[0];
+        $user = database::buscar($user->table_name, array('WHERE `id` = ? LIMIT 1', [$id]),'Models\user');
 
-        if ($user == false)
-            return false;
-
+        if (count($user) == 0)
+            return null;
+        $user = $user[0];
         return $user;
     }
     public static function buscarAPIToken(string $apiToken): user|false{
         $user = new user();
-        $user = database::buscar($user->table_name, array('WHERE `tokenAPI` = ? LIMIT 1', [$apiToken]),'Models\user')[0];
+        $user = database::buscar($user->table_name, array('WHERE `tokenAPI` = ? LIMIT 1', [$apiToken]),'Models\user');
 
-        if ($user == false)
+        if (count($user) == 0)
             return false;
 
-        return $user;
+        return $user[0];
     }
     public function getJsonObject()
     {

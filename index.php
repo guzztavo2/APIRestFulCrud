@@ -1,11 +1,15 @@
 <?php
-include('./config.php');
-include('./routes.php');
-use Views\view;
-try{
-$routes = new Routes();
-}catch(Exception $e){   
-    $view = new view();
-    $view->renderPage('error.php', array('Message' => $e->getMessage(), 'Code' => $e->getCode()));
-}
+use Views\View;
 
+require_once './config.php';
+require_once './routes.php';
+
+try {
+    $routes = new Routes();
+} catch (Exception $e) {
+    $view = new View();
+    $view->renderPage('error.php', [
+        'Message' => $e->getMessage(),
+        'Code' => $e->getCode()
+    ]);
+}?>

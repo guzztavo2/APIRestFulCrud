@@ -8,4 +8,7 @@
     <script src="http://localhost/CRUD_PHP/code/<?php echo explode('.', $page)[0] . 'File' ?>.js"></script>
     <?php endif; ?>
 </body>
+<script>
+    const HOME_PATH = '<?php echo routes::HOME_PATH; ?>'
+</script>
 </html>

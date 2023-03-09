@@ -67,4 +67,8 @@ class dataBase
         $pdo = self::conectar()->prepare("UPDATE `$table_name` SET $query[0]");
         $pdo->execute($query[1]);
     }
+    public static function delete($table_name, array $query){
+        $pdo = self::conectar()->prepare("DELETE FROM `$table_name` WHERE $query[0]");
+        $pdo->execute($query[1]);
+    }
 }

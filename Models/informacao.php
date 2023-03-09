@@ -18,7 +18,7 @@ class informacao extends model
     protected int $quemCadastrou;
 
 
-    public function getId(): string
+    public function getId(): string|null
     {
         return $this->id;
     }
@@ -29,7 +29,7 @@ class informacao extends model
     }
 
     // Getter e Setter para $informacao
-    public function getInformacao(): string
+    public function getInformacao(): string|null
     {
         return $this->informacao;
     }
@@ -43,7 +43,7 @@ class informacao extends model
     }
 
     // Getter e Setter para $dataCadastrada
-    public function getDataCadastrada(): string
+    public function getDataCadastrada(): string|null
     {
         return date('d/m/Y H:i:s', strtotime($this->dataCadastrada));
     }
@@ -53,22 +53,32 @@ class informacao extends model
         $this->dataCadastrada = date('Y-m-d H:i:s');
     }
 
-    // Getter e Setter para $dataCadastrada
+    // Getter e Setter para $DataAtualizacao
     public function getDataAtualizacao(): string|null
     {
-        return $this->dataAtualizacao;
+        if(isset($this->dataAtualizacao) && !empty($this->dataAtualizacao))
+            return date('d/m/Y H:i:s', strtotime($this->dataAtualizacao));
+        return null;
     }
-
-    public function setDataAtualizacao(string $dataAtualizacao): void
+   
+    public function setDataAtualizacao(): void
     {
-        $this->dataAtualizacao = $dataAtualizacao;
+    $this->dataAtualizacao = date('Y-m-d H:i:s');
     }
     // Getter e Setter para $quemCadastrou
-    public function getQuemCadastrou(): user
+    public function getQuemCadastrou(): user | null
     {
         return user::buscarPorID($this->quemCadastrou);
     }
+    public static function buscarPorID(int $id):informacao | null{
+        $informacao = new informacao();
+        $informacao = database::buscar($informacao->table_name, array('WHERE `id` = ? LIMIT 1', [$id]),'Models\informacao');
 
+        if (count($informacao) == 0)
+            return null;
+        $informacao = $informacao[0];
+        return $informacao;
+    }
     public function setQuemCadastrou(user $quemCadastrou): void
     {
         $this->quemCadastrou = $quemCadastrou->getID();
@@ -79,6 +89,7 @@ class informacao extends model
         if (database::insertData($this->table_name, [
             'informacao' => $this->informacao,
             'dataCadastrada' => $this->dataCadastrada,
+            'dataAtualizacao' => $this->dataAtualizacao,
             'quemCadastrou' => $this->quemCadastrou
 
         ]))
@@ -111,5 +122,14 @@ class informacao extends model
 
     
     
+   }
+   public function atualizarInformacao(string $novaInformacao){
+        $this->setInformacao($novaInformacao);
+        $this->setDataAtualizacao(); 
+        database::update($this->table_name, ["`informacao` = ?,`dataAtualizacao` = ? WHERE `id` = ? LIMIT 1", [$this->informacao, $this->dataAtualizacao, $this->id]]);
+
+   }
+   public function deletarInformacao(){
+    database::delete($this->table_name, ["`id` = ? LIMIT 1", [$this->id]]);
    }
 }

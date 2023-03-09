@@ -8,37 +8,71 @@ class Routes
 {
     private array $URL;
     public const HOME_PATH = HOME_URL;
-    private const LIST_PAGE_REDIRECIONAMENTO = ['home', 'user', 'sobre', 'code', 'style'];
-    private const GET_REQUISICOES = [ 'app' => ['page']];
+    private const LIST_PAGE_REDIRECIONAMENTO = ['home', 'user', 'sobre', 'informacao'];
+    private const GET_REQUISICOES = ['app' => ['page']];
     public string $requestMethod;
 
-    private function verificarTipoRequest()
+    private function verificarTipoRequest(string $metodoHttp)
     {
-        $requestMethod = $_SERVER['REQUEST_METHOD'];
-        $this->requestMethod = $requestMethod;
-        userController::verificarTokenUser();
-        switch ($requestMethod) {
-            case 'POST':
-                $this->redirecionamentoPOSTmethod();
-                return;
-                break;
-            case 'GET':
-                $this->redirecionarGETmethod();
-                return;
-                break;
-            case 'UPDATE':
-                return;
-                break;
-
-            case 'DELETE':
-                return;
-                break;
-
-            default:
-                throw new Exception('Esse método não é permitido', 400);
+        $this->verificarTokenUser();
+    
+        $metodosSuportados = [
+            'POST' => 'redirecionamentoPOSTmethod',
+            'GET' => 'redirecionarGETmethod',
+            'PUT' => 'redirecionarPutMethod',
+            'DELETE' => 'redirecionarDeleteMethod',
+        ];
+    
+        if (isset($metodosSuportados[$metodoHttp])) {
+            $this->{$metodosSuportados[$metodoHttp]}();
+            return;
         }
+    
+        throw new Exception('Esse método não é permitido', 400);
     }
-
+    
+    private function verificarTokenUser()
+    {
+        userController::verificarTokenUser();
+    }
+    
+    public function redirecionarDeleteMethod()
+    {
+        if ($this->verificarUrlParaDeletarInformacao()) {
+            informacaoController::deletarInformacao();
+            return;
+        }
+    
+        $this->responderRequisicaoNaoPermitida();
+    }
+    
+    public function redirecionarPutMethod()
+    {
+        if ($this->verificarUrlParaAtualizarInformacao()) {
+            informacaoController::atualizarInformacao();
+            return;
+        }
+    
+        $this->responderRequisicaoNaoPermitida();
+    }
+    
+    private function verificarUrlParaDeletarInformacao()
+    {
+        $url = self::getLocalUrl();
+        return ($url[0] == 'informacao' && $url[1] == 'deletarinformacao');
+    }
+    
+    private function verificarUrlParaAtualizarInformacao()
+    {
+        $url = self::getLocalUrl();
+        return ($url[0] == 'informacao' && $url[1] == 'atualizarinformacao');
+    }
+    
+    private function responderRequisicaoNaoPermitida()
+    {
+        http_response_code(403);
+        exit('Essa requisição não é permitida aqui!');
+    }
     public function redirecionamentoPOSTmethod()
     {
         $postData = $this->filtrarDadosDeEntrada();
@@ -72,10 +106,8 @@ class Routes
 
     public function __construct()
     {
-
-
         $this->setURL();
-        $this->verificarTipoRequest();
+        $this->verificarTipoRequest($_SERVER['REQUEST_METHOD']);
     }
 
     private function setURL()
@@ -120,6 +152,9 @@ class Routes
                     break;
                 case 'sobre':
                     homeController::sobre();
+                    break;
+                case 'informacao':                    
+                    informacaoController::informacao($url[1]);               
                     break;
                 case 'errorequisicao':
                     throw new Exception('Não é possível utilizar esse tipo de requisição.', 404);

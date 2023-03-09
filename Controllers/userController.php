@@ -19,6 +19,61 @@ class userController extends Controller
             Routes::redirecionarURL('user/logar');
         }
     }
+  
+    public static function setSessionUserLogado(user $user)
+    {
+
+        $_SESSION['userLogado'] = $user->getJsonObject();
+    }
+    public static function getSessionUserLogado()
+    {
+        if (isset($_SESSION['userLogado']) && $_SESSION['userLogado'] !== null) {
+            $user = json_decode($_SESSION['userLogado']);
+            $user_1 = new user();
+            $user_1->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
+            return $user_1;
+        }
+
+        return null;
+    }
+    private static function removeSessionUser()
+    {
+        unset($_SESSION['userLogado']);
+    }
+    public static function configuracao()
+    {
+        self::verificarLogadoRedirect();
+        self::includeFile('accountConfig.php');
+    }
+
+    public static function verificarSenha($postRequest)
+    {
+        self::verificarTokenSession($postRequest);
+
+        $errorRedirect = function (string $message) {
+            $_SESSION['fail'] = $message;
+            Routes::redirecionarURL('user/trocarsenha');
+        };
+        if (strcmp($postRequest['senhaAntiga'], $postRequest['senhaAntiga_1']) !== 0)
+            $errorRedirect('As senhas informadas não são iguais, tente novamente.');
+
+
+        $user = new User();
+        $user->setNomeUsuario(self::getSessionUserLogado()->getNomeUsuario());
+        $user->setSenhaUsuario($postRequest['senhaAntiga']);
+
+        if ($user->buscarPorNomeSenha() == false && $user->buscarPorNomeSenha() !== null || strcmp(self::getSessionUserLogado()->getID(), $user->getID()) !== 0)
+            $errorRedirect('Essa senha não é a correta de sua conta, favor tentar novamente.');
+
+        $_SESSION['senhaNova'] = false;
+        Routes::redirecionarURL('user/trocarsenha');
+    }
+    public static function mainConta()
+    {
+        self::verificarLogadoRedirect();
+
+        self::includeFile('accountMain.php');
+    }
     public static function trocarSenha($postRequest = null)
     {
         if ($postRequest == null) {
@@ -72,54 +127,6 @@ class userController extends Controller
                 $warningRedirect('Requisição inválida, por favor, insira sua senha atual novamente, para poder troca-la.');
         }
     }
-    public static function setSessionUserLogado(user $user)
-    {
-
-        $_SESSION['userLogado'] = $user->getJsonObject();
-    }
-    public static function getSessionUserLogado()
-    {
-        if (isset($_SESSION['userLogado']) && $_SESSION['userLogado'] !== null) {
-            $user = json_decode($_SESSION['userLogado']);
-            $user_1 = new user();
-            $user_1->cloneUser($user->id, $user->nomeUsuario, $user->senhaUsuario, $user->estaLogado, $user->tokenAPI);
-            return $user_1;
-        }
-
-        return null;
-    }
-    private static function removeSessionUser()
-    {
-        unset($_SESSION['userLogado']);
-    }
-    public static function configuracao()
-    {
-        self::verificarLogadoRedirect();
-        self::includeFile('accountConfig.php');
-    }
-
-    public static function verificarSenha($postRequest)
-    {
-        self::verificarTokenSession($postRequest);
-
-        $errorRedirect = function (string $message) {
-            $_SESSION['fail'] = $message;
-            Routes::redirecionarURL('user/trocarsenha');
-        };
-        if (strcmp($postRequest['senhaAntiga'], $postRequest['senhaAntiga_1']) !== 0)
-            $errorRedirect('As senhas informadas não são iguais, tente novamente.');
-
-
-        $user = new User();
-        $user->setNomeUsuario(self::getSessionUserLogado()->getNomeUsuario());
-        $user->setSenhaUsuario($postRequest['senhaAntiga']);
-
-        if ($user->buscarPorNomeSenha() == false && $user->buscarPorNomeSenha() !== null || strcmp(self::getSessionUserLogado()->getID(), $user->getID()) !== 0)
-            $errorRedirect('Essa senha não é a correta de sua conta, favor tentar novamente.');
-
-        $_SESSION['senhaNova'] = false;
-        Routes::redirecionarURL('user/trocarsenha');
-    }
     public static function Create()
     {
         $token_csrf = md5(uniqid());
@@ -142,12 +149,7 @@ class userController extends Controller
         if (self::getSessionUserLogado() == null)
             Routes::redirecionarURL('user/logar');
     }
-    public static function mainConta()
-    {
-        self::verificarLogadoRedirect();
-
-        self::includeFile('accountMain.php');
-    }
+    
     public static function Login()
     {
         if (self::getSessionUserLogado() !== null)
@@ -239,7 +241,6 @@ class userController extends Controller
         $user->setTokenAPI();
         if (isset($resultado['success']))
             $warningRedirect($resultado['success'], true);
-
         if (isset($resultado['fail']))
             $warningRedirect($resultado['fail']);
     }

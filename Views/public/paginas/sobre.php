@@ -1,4 +1,4 @@
-<div class="container flexColumn">
+<div class="container flexColumn" style="height:90%; overflow:auto; flex-flow:column nowrap; padding:2%;">
    <h2>Bem vindo a sessão: Sobre</h2>
    <p>Aqui você entenderá como a API REST funciona.</p>
 
@@ -10,39 +10,199 @@
       Entretanto, para conseguir fazer isso, você precisa: criar ou logar em sua conta, pode fazer acima pelo header.
    </p>
 
-   <h2 style="margin-top:2%">Temos os seguintes End-Points, ou tipos de Request:</h2>
-   <p>
-      GET - Você pode Logar, Criar, Home, Sobre e a Tabela com todas as informações cadastradas. Por aqui você consegue uma API KEY para modificar o CRUD, e isso é um requisito para modifica-lo.
-      <br><br>PUT - Por aqui você pode atualizar, inserindo o ID da informação que será atualizada. Ou você pode inserir, passando a informação como parâmetro.
-      <br><br>DELETE - Aqui você deleta a informação correpondente passando o parâmetro de Identificação.
+   <h4 style="margin-top:2%">
+      Para entender melhor, classe "Routes", que lida com as rotas e as requisições recebidas pela aplicação. A tabela
+      abaixo descreve as funções, seus nomes e propósitos:<br>
+   </h4>
+   <table>
+      <thead>
+         <tr>
+            <th>Nome da Função</th>
+            <th>Descrição</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td>verificarTipoRequest</td>
+            <td>Verifica se o método da requisição é suportado e o chama</td>
+         </tr>
+         <tr>
+            <td>verificarTokenUser</td>
+            <td>Verifica o token do usuário</td>
+         </tr>
+         <tr>
+            <td>redirecionarDeleteMethod</td>
+            <td>Manipula solicitações de exclusão de informações</td>
+         </tr>
+         <tr>
+            <td>redirecionarPutMethod</td>
+            <td>Manipula solicitações de atualização de informações</td>
+         </tr>
+         <tr>
+            <td>verificarUrlParaDeletarInformacao</td>
+            <td>Verifica se a URL é para a exclusão de informações</td>
+         </tr>
+         <tr>
+            <td>verificarUrlParaAtualizarInformacao</td>
+            <td>Verifica se a URL é para a atualização de informações</td>
+         </tr>
+         <tr>
+            <td>responderRequisicaoNaoPermitida</td>
+            <td>Responde com código 403 se a requisição não for permitida</td>
+         </tr>
+         <tr>
+            <td>redirecionamentoPOSTmethod</td>
+            <td>Manipula as solicitações POST com base na URL</td>
+         </tr>
+         <tr>
+            <td>filtrarDadosDeEntrada</td>
+            <td>Filtra e retorna dados de entrada POST</td>
+         </tr>
+         <tr>
+            <td>__construct</td>
+            <td>Método construtor, que inicializa a classe e chama outras funções</td>
+         </tr>
+         <tr>
+            <td>setURL</td>
+            <td>Extrai a URL da solicitação e a armazena em uma propriedade</td>
+         </tr>
+         <tr>
+            <td>getURL</td>
+            <td>Retorna a URL armazenada na propriedade</td>
+         </tr>
+         <tr>
+            <td>getLocalUrl</td>
+            <td>Retorna a URL da solicitação atual</td>
+         </tr>
+         <tr>
+            <td>redirecionarGETmethod</td>
+            <td>Manipula solicitações GET com base na URL</td>
+         </tr>
+      </tbody>
+   </table>
+
+   <p><br>
+      O código trata as requisições POST, GET, PUT e DELETE. Os endpoints para as requisições POST estão definidos no
+      método redirecionamentoPOSTmethod(), enquanto que os endpoints para as requisições GET, PUT e DELETE estão
+      definidos nos métodos redirecionarGETmethod(), redirecionarPutMethod() e redirecionarDeleteMethod(),
+      respectivamente. Os endpoints para as requisições DELETE e PUT são dinâmicos e dependem do ID da informação que
+      se deseja deletar ou atualizar.
 
    </p>
+   <h2 style="margin-top:2%">Exemplos de utilização:<br><br></h2>
 
-   <h2 style="margin-top:2%">Exemplos de utilização:</h2>
-   <p>Digamos que a conta já está criada e com acesso ativo.</p>
+   <p>Digamos que a conta já está criada e com acesso ativo.<br><br></p>
+   <p>Para inserir uma informação, é necessário enviar um método POST para a URL "informacao/inserirInformacao",
+      juntamente com a APIKEY da sua conta no cabeçalho da autenticação. O conteúdo da solicitação deve ser um array
+      em JSON com as informações que você deseja salvar, como mostrado abaixo:</p>
+   <table>
+      <thead>
+         <tr>
+            <th>URL</th>
+            <th>Método HTTP</th>
+            <th>Cabeçalho de autenticação</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td>informacao/inserirInformacao</td>
+            <td>POST</td>
+            <td>Authorization: Bearer {APIKEY}</td>
+         </tr>
+      </tbody>
+   </table>
+   <h4><br>Corpo JSON:</h4>
+   <ol>
+      <li>{ "informacao": "Este é o primeiro objeto" }</li>
+      <li>{ "informacao": "Este é o segundo objeto" }</li>
+      <li>{ "informacao": "Este é o terceiro objeto" }</li>
+      <li>{ "informacao": "Este é o quarto objeto" }</li>
+   </ol>
+   <p>Para excluir uma informação, é necessário enviar uma solicitação DELETE para a URL
+      'informacao/deletarinformacao', juntamente com a APIKEY da sua conta incluída no cabeçalho de autenticação. O
+      corpo da solicitação deve ser um array em JSON com o ID das informações que você deseja deletar, conforme
+      exemplificado abaixo:</p>
+   <table>
+      <thead>
+         <tr>
+            <th>URL</th>
+            <th>Método HTTP</th>
+            <th>Cabeçalho de autenticação</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td>informacao/deletarinformacao </td>
+            <td>DELETE</td>
+            <td>Authorization: Bearer {APIKEY}</td>
+         </tr>
+      </tbody>
+   </table>
+   <h4><br>Corpo JSON:</h4>
+   <ol>
+      <li>{ "id": "1" }</li>
+      <li>{ "id": "2" }</li>
+      <li>{ "id": "3" }</li>
+      <li>{ "id": "4" }</li>
+   </ol>
 
-   <p>
-      Id culpa ullamco commodo nulla laborum voluptate id ea labore proident. Magna et sit officia incididunt. Excepteur eiusmod est deserunt magna aliquip magna sit enim in. Officia ea aute laborum ea commodo laborum officia est veniam minim ipsum. Magna sint amet irure enim ut nulla laboris ad et sint ipsum commodo eu.
 
-      Esse do cillum exercitation enim esse. Aliquip pariatur adipisicing incididunt ullamco sunt eiusmod id mollit et proident sint in. Nulla sunt enim ea ipsum nisi culpa non dolore non ad commodo do. Nostrud adipisicing Lorem veniam nulla proident duis.
+   <p>Para atualizar uma informação, é necessário enviar um método PUT para a URL 'informacao/atualizarinformacao',
+      juntamente com a APIKEY da sua conta no cabeçalho da autenticação. O conteúdo da solicitação deve ser um objeto
+      em JSON com o ID da informação que deseja atualizar e as novas informações, como mostrado abaixo:</p>
+   <table>
+      <thead>
+         <tr>
+            <th>URL</th>
+            <th>Método HTTP</th>
+            <th>Cabeçalho de autenticação</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td>informacao/atualizarinformacao </td>
+            <td>PUT</td>
+            <td>Authorization: Bearer {APIKEY}</td>
+         </tr>
+      </tbody>
+   </table>
+   <h4><br>Corpo JSON:</h4>
+   <ol>
+      <li>{ "id": "1", "novaInformacao": "Esta é a informação 1 atualizada" }</li>
+      <li> {"id": "2",
+         "novaInformacao": "Esta é a informação 2 atualizada"} </li>
+      <li> {"id": "3",
+         "novaInformacao": "Esta é a informação 3 atualizada"} </li>
+   </ol>
 
-      Magna dolore minim mollit laborum elit est elit esse anim ipsum eu aliquip. Laborum voluptate et fugiat officia dolor commodo fugiat do irure mollit ea pariatur ex ad. Duis consectetur non irure cupidatat eiusmod incididunt nisi nisi aute exercitation reprehenderit. Ea fugiat non id nisi. Tempor nostrud est minim pariatur incididunt commodo laborum incididunt.
 
-      Proident enim aliquip cupidatat ut anim commodo exercitation magna. Do eu eu pariatur ullamco. Cupidatat velit cillum non commodo eu ad do anim est veniam. Anim exercitation aliquip pariatur amet ex sunt id sunt Lorem ipsum in. Nulla in in id dolore cillum dolore est ea consequat mollit occaecat. Quis Lorem ut elit excepteur reprehenderit mollit amet mollit aliquip enim do.
-
-      Elit exercitation velit ipsum Lorem nisi irure non. Officia pariatur esse nostrud nostrud. Reprehenderit qui nostrud mollit qui. Quis enim non enim anim ad enim ullamco deserunt do nostrud duis ex consectetur enim. Lorem tempor deserunt cillum sint aute eu do tempor in. Ex id laboris ad excepteur aliqua est exercitation consectetur laboris amet minim sint. Cillum mollit sunt eu do.
-
-      Consequat qui in deserunt voluptate ullamco Lorem reprehenderit irure nostrud consequat minim irure cupidatat. Pariatur elit cupidatat est id velit sunt. Incididunt sunt esse amet in ut culpa amet sunt amet sit ex adipisicing consectetur. Consectetur nostrud et proident aliquip. Exercitation eu officia excepteur laboris consequat officia ut dolore irure. Laboris ipsum veniam sunt aliquip enim dolore ex aliquip reprehenderit sunt in.
-
-      Consectetur esse sit aute tempor nulla minim amet commodo incididunt voluptate ut voluptate dolor. Sit veniam nisi amet mollit nulla ex irure. Est irure laboris minim deserunt amet. Labore adipisicing sunt commodo laboris fugiat laborum mollit adipisicing excepteur et laborum veniam. Quis laborum aliqua veniam quis elit velit reprehenderit laboris. Anim nostrud duis sit eiusmod.
-
-      Proident Lorem ut adipisicing reprehenderit officia eiusmod. Exercitation adipisicing exercitation eiusmod amet officia occaecat tempor commodo sunt. Occaecat irure eu amet sit nulla eu duis id amet nulla minim aute. Excepteur minim qui nisi occaecat magna amet esse elit in irure pariatur. Adipisicing est cupidatat esse fugiat.
-
-      Aliquip reprehenderit eu magna officia ut eu adipisicing. Aliqua fugiat veniam nostrud aute occaecat voluptate voluptate dolor. Adipisicing ipsum magna laboris officia. Id nulla reprehenderit velit commodo eu laborum.
-
-      Et ipsum commodo aliqua mollit id mollit. Esse nostrud in duis officia Lorem incididunt esse. Pariatur dolore laboris deserunt mollit quis aliquip officia minim enim duis magna pariatur. Eu incididunt laborum duis consectetur officia ut exercitation adipisicing nulla sunt eiusmod excepteur sunt duis. Ullamco nulla id Lorem exercitation commodo ullamco. Minim laborum occaecat qui aute nisi excepteur qui cillum voluptate excepteur. Sint voluptate nulla anim do id.
-
-   </p>
-
-
+   <p>Observe que o método HTTP utilizado para atualizar informações é o PUT e não o DELETE. Além disso, como as outras
+      requisições, você pode atualizar diversas informações, enviando no corpo da requisição.</p>
 </div>
+
+
+
+
+<style>
+   table {
+      margin: 0 0;
+      border: 1px solid black;
+   }
+
+   table th {
+      border: 1px solid black;
+   }
+
+   table td {
+      border: 1px solid black;
+      padding: 1%;
+   }
+
+   ol {
+      padding: 2% 3%;
+   }
+
+   ol li {
+      padding: 1%;
+   }
+</style>

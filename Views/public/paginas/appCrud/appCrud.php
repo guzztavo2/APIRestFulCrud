@@ -66,7 +66,8 @@
 
             <?php for ($n = $initialPage; $n <= (int)$maxPages; $n++) : ?>
                 <?php if ($paginaAtual == $n) : ?>
-                    <h2 class="pagina marcado"><a href="<?php echo informacaoController::gerarUrl($n); ?>"><?php echo $n; ?></a></h2>
+                    <h2 class="pagina marcado"><a href="<?php echo informacaoController::gerarUrl($n); ?>"><?php echo $n; ?></a>
+                    </h2>
 
                 <?php else : ?>
                     <h2 class="pagina"><a href="<?php echo informacaoController::gerarUrl($n); ?>"><?php echo $n; ?></a></h2>
@@ -84,11 +85,13 @@
     </div>
 </div>
 
+
+
 <script>
     let listTD = document.querySelectorAll('table tr');
-    listTD.forEach(item =>{
-        item.addEventListener('click', function(e){
-            window.location.href = HOME_PATH + 'informacao/'+e.target.parentElement.children[0].innerHTML;
+    listTD.forEach(item => {
+        item.addEventListener('click', function(e) {
+            window.location.href = HOME_PATH + 'informacao/' + e.target.parentElement.children[0].innerHTML;
         });
     })
 </script>
@@ -102,7 +105,7 @@
 
     div.main h1 {
         border-bottom: 1px solid black;
-        height:10%;
+        height: 10%;
     }
 
     table {
@@ -160,9 +163,9 @@
 
     .pagina {
         background-color: #1D3557;
-       
+
         width: calc(100% / 14);
-        
+
         border: 1px solid black;
         min-width: 35px;
         height: 100%;
@@ -172,7 +175,7 @@
         color: white;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 5px;
         transition: ease-in-out 0.2s;
-   
+
     }
 
     .pagina[disabled=true] {

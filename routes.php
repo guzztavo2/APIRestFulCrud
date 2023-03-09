@@ -12,6 +12,32 @@ class Routes
     private const GET_REQUISICOES = ['app' => ['page']];
     public string $requestMethod;
 
+
+    
+    private function verificarTokenUser()
+    {
+        userController::verificarTokenUser();
+    }
+    
+  
+    
+    private function verificarUrlParaDeletarInformacao()
+    {
+        $url = self::getLocalUrl();
+        return ($url[0] == 'informacao' && $url[1] == 'deletarinformacao');
+    }
+    
+    private function verificarUrlParaAtualizarInformacao()
+    {
+        $url = self::getLocalUrl();
+        return ($url[0] == 'informacao' && $url[1] == 'atualizarinformacao');
+    }
+    
+    private function responderRequisicaoNaoPermitida()
+    {
+        http_response_code(403);
+        exit('Essa requisição não é permitida aqui!');
+    }
     private function verificarTipoRequest(string $metodoHttp)
     {
         $this->verificarTokenUser();
@@ -30,12 +56,6 @@ class Routes
     
         throw new Exception('Esse método não é permitido', 400);
     }
-    
-    private function verificarTokenUser()
-    {
-        userController::verificarTokenUser();
-    }
-    
     public function redirecionarDeleteMethod()
     {
         if ($this->verificarUrlParaDeletarInformacao()) {
@@ -44,8 +64,8 @@ class Routes
         }
     
         $this->responderRequisicaoNaoPermitida();
-    }
-    
+    }   
+
     public function redirecionarPutMethod()
     {
         if ($this->verificarUrlParaAtualizarInformacao()) {
@@ -54,24 +74,6 @@ class Routes
         }
     
         $this->responderRequisicaoNaoPermitida();
-    }
-    
-    private function verificarUrlParaDeletarInformacao()
-    {
-        $url = self::getLocalUrl();
-        return ($url[0] == 'informacao' && $url[1] == 'deletarinformacao');
-    }
-    
-    private function verificarUrlParaAtualizarInformacao()
-    {
-        $url = self::getLocalUrl();
-        return ($url[0] == 'informacao' && $url[1] == 'atualizarinformacao');
-    }
-    
-    private function responderRequisicaoNaoPermitida()
-    {
-        http_response_code(403);
-        exit('Essa requisição não é permitida aqui!');
     }
     public function redirecionamentoPOSTmethod()
     {
@@ -97,80 +99,6 @@ class Routes
 
         exit;
     }
-
-    private function filtrarDadosDeEntrada()
-    {
-
-        return filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
-    }
-
-    public function __construct()
-    {
-        $this->setURL();
-        $this->verificarTipoRequest($_SERVER['REQUEST_METHOD']);
-    }
-
-    private function setURL()
-    {
-        $url = $_SERVER['REQUEST_URI'];
-        $url = explode('/', $url);
-        if (strlen($url[2]) == 0)
-            unset($url[2]);
-
-        array_splice($url, 0, 2);
-
-        $this->URL = $url;
-    }
-    public function getURL()
-    {
-        return $this->URL;
-    }
-
-    public static function getLocalUrl()
-    {
-        $url = $_SERVER['REQUEST_URI'];
-        $url = explode('/', $url);
-        if (strlen($url[2]) == 0)
-            unset($url[2]);
-
-        array_splice($url, 0, 2);
-
-        return $url;
-    }
-    private function redirecionarGETmethod()
-    {
-        // Filtra os parâmetros GET da URL
-        $_GET = filter_input_array(INPUT_GET, FILTER_DEFAULT);
-
-        $url = $this->getURL();
-        $pagina = $url[0] ?? self::redirecionarURL('home');
-
-        if (in_array($pagina, self::LIST_PAGE_REDIRECIONAMENTO)) {
-            switch ($pagina) {
-                case 'home':
-                    homeController::home();
-                    break;
-                case 'sobre':
-                    homeController::sobre();
-                    break;
-                case 'informacao':                    
-                    informacaoController::informacao($url[1]);               
-                    break;
-                case 'errorequisicao':
-                    throw new Exception('Não é possível utilizar esse tipo de requisição.', 404);
-                case 'user':
-                    $this->redirecionarUsuario($url);
-                    break;
-                default:
-                    throw new Exception('Erro, essa URL não existe', 404);
-                    break;
-            }
-        } else {
-            throw new Exception('Página não localizada', 404);
-        }
-    }
-
-    // Função auxiliar para redirecionamento de páginas de usuário
     private function redirecionarUsuario($url)
     {
         // Verifica se a URL de usuário tem mais de um elemento
@@ -217,6 +145,81 @@ class Routes
                 break;
         }
     }
+    private function redirecionarGETmethod()
+    {
+        // Filtra os parâmetros GET da URL
+        $_GET = filter_input_array(INPUT_GET, FILTER_DEFAULT);
+
+        $url = $this->getURL();
+        $pagina = $url[0] ?? self::redirecionarURL('home');
+
+        if (in_array($pagina, self::LIST_PAGE_REDIRECIONAMENTO)) {
+            switch ($pagina) {
+                case 'home':
+                    homeController::home();
+                    break;
+                case 'sobre':
+                    homeController::sobre();
+                    break;
+                case 'informacao':                    
+                    informacaoController::informacao($url[1]);               
+                    break;
+                case 'errorequisicao':
+                    throw new Exception('Não é possível utilizar esse tipo de requisição.', 404);
+                case 'user':
+                    $this->redirecionarUsuario($url);
+                    break;
+                default:
+                    throw new Exception('Erro, essa URL não existe', 404);
+                    break;
+            }
+        } else {
+            throw new Exception('Página não localizada', 404);
+        }
+    }
+    private function filtrarDadosDeEntrada()
+    {
+
+        return filter_input_array(INPUT_POST, FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+
+    public function __construct()
+    {
+        $this->setURL();
+        $this->verificarTipoRequest($_SERVER['REQUEST_METHOD']);
+    }
+
+    private function setURL()
+    {
+        $url = $_SERVER['REQUEST_URI'];
+        $url = explode('/', $url);
+        if (strlen($url[2]) == 0)
+            unset($url[2]);
+
+        array_splice($url, 0, 2);
+
+        $this->URL = $url;
+    }
+    public function getURL()
+    {
+        return $this->URL;
+    }
+
+    public static function getLocalUrl()
+    {
+        $url = $_SERVER['REQUEST_URI'];
+        $url = explode('/', $url);
+        if (strlen($url[2]) == 0)
+            unset($url[2]);
+
+        array_splice($url, 0, 2);
+
+        return $url;
+    }
+   
+
+    // Função auxiliar para redirecionamento de páginas de usuário
+   
 
     public static function redirecionarURL($url)
     {

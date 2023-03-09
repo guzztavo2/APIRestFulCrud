@@ -1,6 +1,7 @@
 <h1>APIRestFulCrud</h1>
-    <p>Este repositório contém uma API RESTful em PHP que permite a realização de operações CRUD (Create, Read, Update,
-        Delete) em um banco de dados MySQL.</p>
+    <p>Este repositório contém uma API RESTful em PHP que permite a realização de operações CRUD (Create, Read, Update, Delete) em um banco de dados MySQL. Além disso, ele apresenta testes de erros do PHPUnit para garantir a estabilidade do sistema. O front-end do sistema foi desenvolvido apenas em Javascript e CSS, com o objetivo de comprovar minhas habilidades técnicas.
+
+Embora tenha sido criado apenas para fins de estudo, o sistema pode ser utilizado em um servidor real, pois conta com meios de segurança utilizados em servidores reais, como filtro de inputs, proteção xsfr, proteção contra MySQL injection, entre outros, que podem ser vistos no código fonte.</p>
     <h2>Estrutura do diretório</h2>
     <p>O repositório está organizado da seguinte maneira:</p>
     <ul>

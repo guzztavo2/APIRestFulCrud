@@ -29,6 +29,7 @@ class user extends model
         $senhaUsuario = crypt($senhaUsuario, $this->nomeUsuario);
         $this->senhaUsuario = $senhaUsuario;
     }
+    
     public function getID()
     {
         return $this->id;
@@ -64,9 +65,13 @@ class user extends model
     public function getApiKEY(){
         return $this->tokenAPI;
     }
-    public function setTokenAPI()
+    public function setTokenAPI($tokenAPI = null)
     {
-      
+        if($tokenAPI == null){
+            $this->tokenAPI = null;
+            return;
+        }
+
         $tokenAPI = md5(crypt(uniqid(), 'apiKey'));
         $this->tokenAPI = $tokenAPI;
         database::update($this->table_name, ['`tokenAPI` = ? WHERE `id` = ?', [$tokenAPI, $this->id]]);
@@ -143,5 +148,9 @@ class user extends model
         if ($senhaUsuario !== null) $this->senhaUsuario = $senhaUsuario;
         if ($estaLogado !== null) $this->estaLogado = $estaLogado;
         if($tokenAPI !== null) $this->tokenAPI = $tokenAPI;
+    }
+
+    public function deletar(){
+        database::delete($this->table_name, ["`id` = ? LIMIT 1", [$this->id]]);
     }
 }

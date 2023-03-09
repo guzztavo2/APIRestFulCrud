@@ -1,0 +1,17 @@
+{
+    "name": "api/vendor",
+    "autoload": {
+        "psr-4": {
+            "Api\\Vendor\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Gustavo Teles",
+            "email": "gustavo_bonifacio2020@outlook.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    }
+}
